@@ -1,0 +1,145 @@
+<!doctype html>
+<!-- APSlot house template · Kallaway Newsroom (engine style "newsroom").
+     50/50 split: a proof panel on top (article header with a yellow highlighter sweep, stat rows, screen
+     capture with Ken Burns), James on the bottom half with a title badge and number badges; full-face
+     punch-ins at pivots. White Montserrat captions, 1 to 3 words, key words in cyan. Filled by build.mjs. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face { font-family: "Montserrat"; src: url("fonts/montserrat-800-latin.woff2") format("woff2"); font-weight: 800; font-display: block; }
+      @font-face { font-family: "Montserrat"; src: url("fonts/montserrat-900-latin.woff2") format("woff2"); font-weight: 900; font-display: block; }
+      @font-face { font-family: "Barlow"; src: url("fonts/barlow-700-latin.woff2") format("woff2"); font-weight: 700; font-display: block; }
+
+      :root { --bg: #0d1b2a; --card: #0f1d31; --line: #263e5e; --cyan: #00c8ff; --blue: #4285f4; --gold: #ffe200; --good: #34d399; --white: #f5f8fc; --muted: #96acc6; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0d1b2a; color: #fff;
+        font-family: "Montserrat", "Barlow", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+      #stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      #backdrop { position: absolute; inset: 0; background: radial-gradient(800px 600px at 50% 0%, rgba(0,200,255,0.14), transparent 60%), var(--bg); }
+
+      /* James on the bottom half (CSS base top:960px; y transforms only) */
+      .video-wrapper { position: absolute; left: 0; top: 960px; width: 1080px; height: 960px; overflow: hidden; background: #000; }
+      .video-wrapper video { width: 100%; height: 100%; object-fit: cover; }
+      #band-edge { position: absolute; left: 0; top: 958px; width: 1080px; height: 6px; background: linear-gradient(90deg, var(--blue), var(--cyan)); z-index: 3; }
+      #title-badge { position: absolute; left: 50%; top: 986px; transform: translateX(-50%); z-index: 6; font-weight: 800; font-size: 34px; letter-spacing: 0.04em; color: #fff;
+        background: rgba(9,18,32,0.88); border: 2px solid var(--line); border-radius: 24px; padding: 20px 40px; text-transform: uppercase; white-space: nowrap; }
+      #title-badge b { color: var(--cyan); }
+      .video-full { position: absolute; inset: 0; overflow: hidden; visibility: hidden; opacity: 0; background: #000; }
+      .video-full video { width: 100%; height: 100%; object-fit: cover; }
+      #vignette-full { position: absolute; inset: 0; opacity: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.40) 0%, transparent 20%, transparent 58%, rgba(0,0,0,0.80) 100%); }
+      #progress { position: absolute; left: 0; top: 0; width: 1080px; height: 8px; z-index: 80; background: linear-gradient(90deg, var(--blue), var(--cyan)); transform-origin: left center; transform: scaleX(0); }
+      #wordmark { position: absolute; left: 48px; top: 36px; z-index: 70; font-weight: 900; font-size: 34px; letter-spacing: 0.04em; }
+      #wordmark b { color: var(--cyan); }
+      #legal { position: absolute; right: 48px; top: 42px; z-index: 70; font-family: "Barlow", Arial, sans-serif; font-weight: 700; font-size: 28px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
+
+      .card-host { position: absolute; pointer-events: none; overflow: hidden; }
+      .card-host .card { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      .root { position: relative; width: 100%; height: 100%; }
+      .panel { position: absolute; left: 50px; top: 110px; width: 980px; height: 800px; border-radius: 28px; background: var(--card); border: 3px solid var(--line); overflow: hidden; box-shadow: 0 30px 90px rgba(0,0,0,0.5); }
+      .article { padding: 54px 56px; display: flex; flex-direction: column; gap: 34px; height: 100%; }
+      .article .site { font-weight: 800; font-size: 28px; letter-spacing: 0.18em; color: var(--muted); }
+      .article .headline { font-weight: 900; font-size: 72px; line-height: 1.08; text-transform: uppercase; }
+      .article .hi { position: relative; display: inline-block; }
+      .article .hi i { position: absolute; left: -8px; right: -8px; top: 12%; height: 80%; background: var(--gold); opacity: 0.85; border-radius: 10px; transform-origin: left center; transform: scaleX(0); }
+      .article .hi b { position: relative; color: #0d1b2a; font-weight: 900; }
+      .stats { display: flex; flex-direction: column; gap: 18px; margin-top: 10px; }
+      .stat { display: flex; align-items: center; gap: 22px; font-weight: 800; font-size: 44px; text-transform: uppercase; background: rgba(13,27,42,0.7); border: 2px solid var(--line); border-radius: 18px; padding: 18px 26px; white-space: nowrap; overflow: hidden; }
+      .stat .n { display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 32px; flex: none; }
+      .stat.good { border-color: var(--good); } .stat.good .n { background: var(--good); color: #052e1c; }
+      .screen { position: absolute; left: 50px; top: 110px; width: 980px; height: 800px; border-radius: 26px; overflow: hidden; background: #000; border: 3px solid var(--line); box-shadow: 0 30px 90px rgba(0,0,0,0.6); }
+      .screen .bar { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 22px; background: #16294a; }
+      .screen .bar i { width: 16px; height: 16px; border-radius: 50%; } .screen .bar i:nth-child(1) { background: #ff5f57; } .screen .bar i:nth-child(2) { background: #febc2e; } .screen .bar i:nth-child(3) { background: #28c840; }
+      .screen .bar .url { margin-left: 14px; font-size: 24px; font-weight: 800; color: var(--muted); background: #0d1b2a; border-radius: 10px; padding: 6px 18px; text-transform: uppercase; }
+      .screen .view { position: relative; width: 100%; height: 746px; overflow: hidden; background: #000; }
+      .screen .media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: center; }
+      .tag { position: absolute; left: 22px; top: 72px; font-weight: 800; font-size: 24px; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; background: rgba(13,27,42,0.8); border-radius: 10px; padding: 6px 14px; }
+      .badges { position: absolute; right: 46px; top: 1440px; display: flex; flex-direction: column; gap: 16px; align-items: flex-end; }
+      .badge { font-weight: 900; font-size: 56px; color: #0d1b2a; background: var(--gold); border-radius: 20px; padding: 14px 30px; box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+      .cta.blue { position: absolute; inset: 0; background: var(--blue); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; padding: 0 80px; text-align: center; }
+      .cta .kick { font-weight: 800; font-size: 34px; letter-spacing: 0.2em; color: rgba(255,255,255,0.75); }
+      .cta .line1 { font-weight: 900; font-size: 96px; line-height: 1; text-transform: uppercase; max-width: 940px; }
+      .cta .line2 { font-weight: 800; font-size: 48px; color: var(--blue); background: #fff; border-radius: 999px; padding: 26px 58px; }
+      .cta .fine { margin-top: 20px; font-family: "Barlow", Arial, sans-serif; font-weight: 700; font-size: 28px; letter-spacing: 0.1em; color: rgba(255,255,255,0.8); text-transform: uppercase; }
+
+      {{HIDE_LIST}}
+
+      /* captions: white Montserrat ExtraBold, 1 to 3 words, key words in cyan */
+      #captions { position: absolute; inset: 0; pointer-events: none; }
+      .cap { position: absolute; left: 40px; width: 1000px; text-align: center; font-weight: 800; font-size: 74px; line-height: 1.12; color: #fff;
+        visibility: hidden; opacity: 0; text-transform: uppercase; text-shadow: 0 4px 10px rgba(0,0,0,0.9), 0 12px 40px rgba(0,0,0,0.7); }
+      .cap em { font-style: normal; font-weight: 900; color: var(--cyan); }
+      {{CAP_TOP_CSS}}
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="{{COMPOSITION_ID}}" data-start="0" data-duration="{{DUR}}" data-fps="30" data-width="1080" data-height="1920">
+      <div id="backdrop"></div>
+      <div class="video-wrapper" id="video-wrap">
+        <video id="bg-video" src="input-video.mp4" muted playsinline data-start="0" data-duration="{{VIDEO_DUR}}" data-track-index="1"></video>
+      </div>
+      <audio id="source-audio" src="input-video.mp4" data-start="0" data-duration="{{VIDEO_DUR}}" data-track-index="10" data-volume="1"></audio>
+      <div class="video-full" id="video-full">
+        <video id="full-video" src="input-video-vert.mp4" muted playsinline data-start="0" data-duration="{{VIDEO_DUR}}" data-track-index="4"></video>
+      </div>
+      <div id="band-edge"></div>
+      <div id="title-badge"><b>APSLOT</b> · {{BADGE}}</div>
+      <div id="vignette-full"></div>
+      <div id="progress"></div>
+      <div id="wordmark"><b>AP</b>SLOT.COM</div>
+      <div id="legal">Education only · 21+</div>
+
+{{SFX_ELEMENTS}}
+
+{{CARDS}}
+
+      <div id="captions" data-track-index="5">
+{{CAPTION_SPANS}}
+      </div>
+
+      <script src="vendor/gsap.min.js"></script>
+      <script>
+        (function () {
+          var tl = window.gsap.timeline({ paused: true });
+          var Q = function (t) { return Math.round(t * 30) / 30; };
+          var DUR = {{DUR}};
+          function enter(sel, at, dur) { tl.set(sel, { visibility: "visible" }, Q(at)); tl.fromTo(sel, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: dur || 0.3, ease: "power2.out" }, Q(at)); }
+          function exit(sel, at, dur) { tl.to(sel, { opacity: 0, duration: dur || 0.22, ease: "power2.in" }, Q(at)); tl.set(sel, { visibility: "hidden" }, Q(at + (dur || 0.22))); }
+          function pop(sel, at, dur, from) { tl.fromTo(sel, { opacity: 0, scale: from || 0.7 }, { opacity: 1, scale: 1, duration: dur || 0.4, ease: "back.out(1.7)", immediateRender: false }, Q(at)); }
+          function rise(sel, at, dur) { tl.fromTo(sel, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: dur || 0.45, ease: "power2.out", immediateRender: false }, Q(at)); }
+          function slam(sel, at) { tl.fromTo(sel, { opacity: 0, scale: 1.6, rotation: -8 }, { opacity: 1, scale: 1, rotation: -8, duration: 0.26, ease: "power3.out", immediateRender: false }, Q(at)); }
+          function countUp(sel, from, to, at, dur, fmt) { var o = { v: from }; tl.to(o, { v: to, duration: dur, ease: "power2.out", onUpdate: function () { var el = document.querySelector(sel); if (!el) return; el.textContent = (fmt === "$" ? "$" : "") + Math.round(o.v).toLocaleString("en-US"); } }, Q(at)); }
+          function punch(w) { tl.to("#bg-video", { scale: 1.07, duration: 0.15, ease: "power2.out" }, Q(w)); tl.to("#bg-video", { scale: 1.0, duration: 0.35, ease: "power2.inOut" }, Q(w + 0.18)); }
+          function toFullhim(t, hold) {
+            tl.set("#video-full", { visibility: "visible" }, Q(t - 0.04));
+            tl.fromTo("#video-full", { opacity: 0 }, { opacity: 1, duration: 0.12, immediateRender: false }, Q(t - 0.04));
+            tl.to("#video-wrap", { opacity: 0, duration: 0.12 }, Q(t));
+            tl.to("#band-edge, #title-badge", { opacity: 0, duration: 0.12 }, Q(t));
+            tl.fromTo("#vignette-full", { opacity: 0 }, { opacity: 1, duration: 0.3, immediateRender: false }, Q(t + 0.03));
+            tl.fromTo("#full-video", { scale: 1 }, { scale: 1.05, duration: Math.max(0.3, hold), ease: "none", immediateRender: false }, Q(t));
+          }
+          function toSplit(t) {
+            tl.to("#video-wrap", { opacity: 1, duration: 0.12 }, Q(t - 0.04));
+            tl.to("#band-edge, #title-badge", { opacity: 1, duration: 0.12 }, Q(t - 0.04));
+            tl.to("#video-full", { opacity: 0, duration: 0.12 }, Q(t));
+            tl.set("#video-full", { visibility: "hidden" }, Q(t + 0.14));
+            tl.to("#vignette-full", { opacity: 0, duration: 0.2 }, Q(t));
+          }
+          function toTakeover(t) {
+            tl.to("#video-wrap", { y: 980, opacity: 0, duration: 0.4, ease: "power2.in" }, Q(t));
+            tl.to("#band-edge, #title-badge", { opacity: 0, duration: 0.2 }, Q(t));
+            tl.to("#video-full", { opacity: 0, duration: 0.3 }, Q(t));
+          }
+          tl.fromTo("#progress", { scaleX: 0 }, { scaleX: 1, duration: DUR - 0.13, ease: "none" }, 0.05);
+
+{{TIMELINE}}
+
+{{CAPTION_TWEENS}}
+
+          window.__timelines = window.__timelines || {};
+          window.__timelines["{{COMPOSITION_ID}}"] = tl;
+        })();
+      </script>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,119 @@
+<!doctype html>
+<!-- APSlot house template · Hormozi Cinematic (engine style "cinematic").
+     Full-screen, crushed-black grade with grain and vignette, slow push-ins with a reframe jump at each
+     scene, a question card before he speaks (the video starts {{VIDEO_START}} s in), giant hero words
+     (Archivo Black caps + Great Vibes script) in the lower band so the face stays clear, single-word white
+     Montserrat captions, a black thesis card to close. Filled by build.mjs. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face { font-family: "Montserrat"; src: url("fonts/montserrat-800-latin.woff2") format("woff2"); font-weight: 800; font-display: block; }
+      @font-face { font-family: "Montserrat"; src: url("fonts/montserrat-900-latin.woff2") format("woff2"); font-weight: 900; font-display: block; }
+      @font-face { font-family: "Archivo Black"; src: url("fonts/archivo-black-400-latin.woff2") format("woff2"); font-weight: 400; font-display: block; }
+      @font-face { font-family: "Great Vibes"; src: url("fonts/great-vibes-400-latin.woff2") format("woff2"); font-weight: 400; font-display: block; }
+      @font-face { font-family: "Instrument Serif"; src: url("fonts/instrument-serif-400-italic-latin.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: block; }
+      @font-face { font-family: "Barlow"; src: url("fonts/barlow-700-latin.woff2") format("woff2"); font-weight: 700; font-display: block; }
+
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; color: #fff;
+        font-family: "Montserrat", "Archivo Black", "Great Vibes", "Instrument Serif", "Barlow", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+      #stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      #backdrop { position: absolute; inset: 0; background: #000; }
+      .video-wrapper { position: absolute; left: 0; top: 1920px; width: 1080px; height: 840px; overflow: hidden; visibility: hidden; opacity: 0; }
+      .video-full { position: absolute; inset: 0; overflow: hidden; background: #000; }
+      .video-full video { width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 30%;
+        filter: contrast(1.22) saturate(0.68) brightness(0.9); }
+      /* grade: crushed blacks, warm skin, vignette, grain */
+      #grade { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 60% at 50% 38%, transparent 40%, rgba(0,0,0,0.78) 100%); mix-blend-mode: normal; }
+      #warm { position: absolute; inset: 0; pointer-events: none; background: rgba(255,170,90,0.07); mix-blend-mode: overlay; }
+      #grain { position: absolute; inset: -20px; pointer-events: none; opacity: 0.16;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.9 0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>"); }
+      #progress { position: absolute; left: 0; top: 0; width: 1080px; height: 6px; z-index: 80; background: rgba(255,255,255,0.7); transform-origin: left center; transform: scaleX(0); }
+      #wordmark { position: absolute; left: 48px; top: 36px; z-index: 70; font-weight: 900; font-size: 30px; letter-spacing: 0.08em; color: rgba(255,255,255,0.85); }
+      #legal { position: absolute; right: 48px; top: 40px; z-index: 70; font-family: "Barlow", Arial, sans-serif; font-weight: 700; font-size: 28px; letter-spacing: 0.08em; color: rgba(255,255,255,0.6); text-transform: uppercase; }
+
+      /* the question card before he speaks */
+      #question { position: absolute; inset: 0; z-index: 50; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 0 90px; text-align: center; }
+      #question .q { font-weight: 900; font-size: 86px; line-height: 1.05; text-transform: uppercase; }
+      #question .s { font-family: "Great Vibes", cursive; font-size: 110px; line-height: 1; color: #fff; margin-top: -10px; }
+
+      .card-host { position: absolute; pointer-events: none; overflow: hidden; }
+      .card-host .card { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      .root { position: relative; width: 100%; height: 100%; }
+      /* hero words in the lower band (the desk), below the chest, above the captions */
+      .hero { position: absolute; left: 0; width: 1080px; top: 1130px; height: 330px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transform-origin: center; }
+      .hero .caps { font-family: "Archivo Black", "Montserrat", Arial, sans-serif; font-size: 128px; line-height: 0.92; text-transform: uppercase; color: #fff; letter-spacing: -0.01em; max-width: 1040px; opacity: 0.92; text-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+      .hero .script { font-family: "Great Vibes", cursive; font-size: 150px; line-height: 0.9; color: #fff; margin-top: -40px; text-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+      .thesis { position: absolute; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px; padding: 0 100px; text-align: center; }
+      .thesis .line { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 104px; line-height: 1.08; color: #fff; }
+      .thesis .mark { font-weight: 900; font-size: 44px; letter-spacing: 0.1em; color: rgba(255,255,255,0.85); }
+      .thesis .mark b { color: #fff; }
+      .thesis .fine { font-family: "Barlow", Arial, sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 0.1em; color: rgba(255,255,255,0.55); text-transform: uppercase; }
+
+      {{HIDE_LIST}}
+
+      /* captions: white Montserrat, one word at a time */
+      #captions { position: absolute; inset: 0; pointer-events: none; }
+      .cap { position: absolute; left: 40px; width: 1000px; text-align: center; font-weight: 800; font-size: 76px; line-height: 1.1; color: #fff;
+        visibility: hidden; opacity: 0; text-transform: uppercase; letter-spacing: 0.04em; text-shadow: 0 4px 10px rgba(0,0,0,0.9), 0 12px 40px rgba(0,0,0,0.7); }
+      .cap em { font-style: normal; font-weight: 900; color: #fff; }
+      {{CAP_TOP_CSS}}
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="{{COMPOSITION_ID}}" data-start="0" data-duration="{{DUR}}" data-fps="30" data-width="1080" data-height="1920">
+      <div id="backdrop"></div>
+      <div class="video-wrapper" id="video-wrap"></div>
+      <div class="video-full" id="video-full">
+        <video id="full-video" class="clip" src="input-video-vert.mp4" muted playsinline data-start="{{VIDEO_START}}" data-duration="{{VIDEO_DUR}}" data-track-index="1"></video>
+      </div>
+      <audio id="source-audio" class="clip" src="input-video-vert.mp4" data-start="{{VIDEO_START}}" data-duration="{{VIDEO_DUR}}" data-track-index="10" data-volume="1"></audio>
+      <div id="warm"></div>
+      <div id="grade"></div>
+      <div id="grain"></div>
+      <div id="progress"></div>
+      <div id="wordmark">APSLOT.COM</div>
+      <div id="legal">Education only · 21+</div>
+      <div id="question"><div class="q">{{QUESTION}}</div><div class="s">the one rule</div></div>
+
+{{SFX_ELEMENTS}}
+
+{{CARDS}}
+
+      <div id="captions" data-track-index="5">
+{{CAPTION_SPANS}}
+      </div>
+
+      <script src="vendor/gsap.min.js"></script>
+      <script>
+        (function () {
+          var tl = window.gsap.timeline({ paused: true });
+          var Q = function (t) { return Math.round(t * 30) / 30; };
+          var DUR = {{DUR}}, VSTART = {{VIDEO_START}};
+          function enter(sel, at, dur) { tl.set(sel, { visibility: "visible" }, Q(at)); tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: dur || 0.2, ease: "power2.out" }, Q(at)); }
+          function exit(sel, at, dur) { tl.to(sel, { opacity: 0, duration: dur || 0.22, ease: "power2.in" }, Q(at)); tl.set(sel, { visibility: "hidden" }, Q(at + (dur || 0.22))); }
+          function pop(sel, at, dur, from) { tl.fromTo(sel, { opacity: 0, scale: from || 0.7 }, { opacity: 1, scale: 1, duration: dur || 0.4, ease: "power2.out", immediateRender: false }, Q(at)); }
+          function rise(sel, at, dur) { tl.fromTo(sel, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: dur || 0.45, ease: "power2.out", immediateRender: false }, Q(at)); }
+          function slam(sel, at) { tl.fromTo(sel, { opacity: 0, scale: 1.4 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power3.out", immediateRender: false }, Q(at)); }
+          function countUp(sel, from, to, at, dur, fmt) { var o = { v: from }; tl.to(o, { v: to, duration: dur, ease: "power2.out", onUpdate: function () { var el = document.querySelector(sel); if (!el) return; el.textContent = (fmt === "$" ? "$" : "") + Math.round(o.v).toLocaleString("en-US"); } }, Q(at)); }
+          function punch(w) {}
+          function toFullhim() {} function toSplit() {} function toTakeover(t) { tl.to("#full-video", { opacity: 0, duration: 0.6 }, Q(t)); }
+          tl.fromTo("#progress", { scaleX: 0 }, { scaleX: 1, duration: DUR - 0.13, ease: "none" }, 0.05);
+          /* question card: holds until the video starts, then falls away */
+          tl.fromTo("#question .q", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.05);
+          tl.fromTo("#question .s", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.45);
+          tl.to("#question", { opacity: 0, duration: 0.35, ease: "power2.in" }, Q(Math.max(0.2, VSTART - 0.1)));
+          tl.set("#question", { visibility: "hidden" }, Q(VSTART + 0.3));
+
+{{TIMELINE}}
+
+{{CAPTION_TWEENS}}
+
+          window.__timelines = window.__timelines || {};
+          window.__timelines["{{COMPOSITION_ID}}"] = tl;
+        })();
+      </script>
+    </div>
+  </body>
+</html>

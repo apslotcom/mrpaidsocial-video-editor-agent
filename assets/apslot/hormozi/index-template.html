@@ -1,0 +1,113 @@
+<!doctype html>
+<!-- APSlot house template · Hormozi Receipts (engine style "receipts").
+     Full-screen seated medium close-up, a white rounded claim banner pinned at the top the whole video,
+     rounded photo / logo cards popping over the chest (never the face), micro zoom cuts (100% / 107%) at
+     each new sentence, plain white Montserrat captions in 2 to 5 word phrases, key words in yellow,
+     almost no music. Palette: black, white, one yellow. Filled by build.mjs. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face { font-family: "Montserrat"; src: url("fonts/montserrat-800-latin.woff2") format("woff2"); font-weight: 800; font-display: block; }
+      @font-face { font-family: "Montserrat"; src: url("fonts/montserrat-900-latin.woff2") format("woff2"); font-weight: 900; font-display: block; }
+      @font-face { font-family: "Barlow"; src: url("fonts/barlow-700-latin.woff2") format("woff2"); font-weight: 700; font-display: block; }
+
+      :root { --bg: #08080a; --yellow: #facc15; --white: #ffffff; --muted: #969696; --card: #141416; --line: #3c3c40; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #08080a; color: #fff;
+        font-family: "Montserrat", "Barlow", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+      #stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      #backdrop { position: absolute; inset: 0; background: var(--bg); }
+
+      /* full-screen James; the band wrapper is kept off screen so the shared contract holds */
+      .video-wrapper { position: absolute; left: 0; top: 1920px; width: 1080px; height: 840px; overflow: hidden; visibility: hidden; opacity: 0; }
+      .video-full { position: absolute; inset: 0; overflow: hidden; background: #000; }
+      .video-full video { width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 32%; }
+      #vignette-full { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, transparent 18%, transparent 62%, rgba(0,0,0,0.70) 100%); }
+      #progress { position: absolute; left: 0; top: 0; width: 1080px; height: 8px; z-index: 80; background: var(--yellow); transform-origin: left center; transform: scaleX(0); }
+      #wordmark { position: absolute; left: 48px; top: 36px; z-index: 70; font-weight: 900; font-size: 34px; letter-spacing: 0.04em; }
+      #wordmark b { color: var(--yellow); }
+      #legal { position: absolute; right: 48px; top: 42px; z-index: 70; font-family: "Barlow", Arial, sans-serif; font-weight: 700; font-size: 28px; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); text-transform: uppercase; }
+
+      /* the claim banner: white, black text, pinned at the top for the whole video */
+      #claim { position: absolute; left: 90px; top: 130px; width: 900px; z-index: 60; background: #fff; color: #0a0a0a; border-radius: 28px; padding: 30px 40px;
+        font-weight: 900; font-size: 54px; line-height: 1.08; text-align: center; text-transform: uppercase; box-shadow: 0 24px 60px rgba(0,0,0,0.55); }
+
+      .card-host { position: absolute; pointer-events: none; overflow: hidden; }
+      .card-host .card { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      .root { position: relative; width: 100%; height: 100%; }
+      /* cards over the chest (face stays clear above y 1000) */
+      .rcard { position: absolute; left: 150px; top: 1120px; width: 780px; border-radius: 30px; overflow: hidden; box-shadow: 0 30px 90px rgba(0,0,0,0.65); }
+      .rcard.logo { background: #fff; color: #0a0a0a; padding: 44px 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; min-height: 300px; }
+      .rcard.logo .big { font-weight: 900; font-size: 68px; line-height: 1.02; text-transform: uppercase; }
+      .rcard.logo .sub { font-weight: 800; font-size: 36px; color: #333; text-transform: uppercase; letter-spacing: 0.04em; }
+      .rcard.photo { height: 560px; background: #000; border: 4px solid #fff; }
+      .rcard.photo .media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .rcard.photo .cap-line { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 30px; background: linear-gradient(0deg, rgba(0,0,0,0.85), transparent); font-weight: 900; font-size: 44px; text-transform: uppercase; text-align: center; }
+      .tag { position: absolute; left: 22px; top: 18px; font-weight: 800; font-size: 24px; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; background: rgba(8,8,10,0.75); border-radius: 10px; padding: 6px 14px; }
+      .cta { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; padding: 0 90px; text-align: center; }
+      .cta .logo { background: #fff; color: #0a0a0a; border-radius: 34px; padding: 70px 60px; display: flex; flex-direction: column; gap: 18px; align-items: center; box-shadow: 0 30px 90px rgba(0,0,0,0.6); }
+      .cta .logo .big { font-weight: 900; font-size: 96px; line-height: 1; text-transform: uppercase; }
+      .cta .logo .sub { font-weight: 800; font-size: 42px; color: #333; text-transform: uppercase; letter-spacing: 0.04em; }
+      .cta .fine { font-family: "Barlow", Arial, sans-serif; font-weight: 700; font-size: 28px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+
+      {{HIDE_LIST}}
+
+      /* captions: white Montserrat ExtraBold, 2 to 5 words, key words flash yellow; above the card area */
+      #captions { position: absolute; inset: 0; pointer-events: none; }
+      .cap { position: absolute; left: 40px; width: 1000px; text-align: center; font-weight: 800; font-size: 66px; line-height: 1.12; color: #fff;
+        visibility: hidden; opacity: 0; text-transform: uppercase; text-shadow: 0 4px 10px rgba(0,0,0,0.9), 0 12px 40px rgba(0,0,0,0.7); }
+      .cap em { font-style: normal; font-weight: 900; color: var(--yellow); }
+      {{CAP_TOP_CSS}}
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="{{COMPOSITION_ID}}" data-start="0" data-duration="{{DUR}}" data-fps="30" data-width="1080" data-height="1920">
+      <div id="backdrop"></div>
+      <div class="video-wrapper" id="video-wrap"></div>
+      <div class="video-full" id="video-full">
+        <video id="full-video" src="input-video-vert.mp4" muted playsinline data-start="0" data-duration="{{VIDEO_DUR}}" data-track-index="1"></video>
+      </div>
+      <audio id="source-audio" src="input-video-vert.mp4" data-start="0" data-duration="{{VIDEO_DUR}}" data-track-index="10" data-volume="1"></audio>
+      <div id="vignette-full"></div>
+      <div id="progress"></div>
+      <div id="wordmark"><b>AP</b>SLOT.COM</div>
+      <div id="legal">Education only · 21+</div>
+      <div id="claim">{{CLAIM}}</div>
+
+{{SFX_ELEMENTS}}
+
+{{CARDS}}
+
+      <div id="captions" data-track-index="5">
+{{CAPTION_SPANS}}
+      </div>
+
+      <script src="vendor/gsap.min.js"></script>
+      <script>
+        (function () {
+          var tl = window.gsap.timeline({ paused: true });
+          var Q = function (t) { return Math.round(t * 30) / 30; };
+          var DUR = {{DUR}};
+          function enter(sel, at, dur) { tl.set(sel, { visibility: "visible" }, Q(at)); tl.fromTo(sel, { opacity: 0 }, { opacity: 1, duration: dur || 0.2, ease: "power2.out" }, Q(at)); }
+          function exit(sel, at, dur) { tl.to(sel, { opacity: 0, duration: dur || 0.22, ease: "power2.in" }, Q(at)); tl.set(sel, { visibility: "hidden" }, Q(at + (dur || 0.22))); }
+          function pop(sel, at, dur, from) { tl.fromTo(sel, { opacity: 0, scale: from || 0.7, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: dur || 0.4, ease: "back.out(1.4)", immediateRender: false }, Q(at)); }
+          function rise(sel, at, dur) { tl.fromTo(sel, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: dur || 0.45, ease: "power2.out", immediateRender: false }, Q(at)); }
+          function slam(sel, at) { tl.fromTo(sel, { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.26, ease: "power3.out", immediateRender: false }, Q(at)); }
+          function countUp(sel, from, to, at, dur, fmt) { var o = { v: from }; tl.to(o, { v: to, duration: dur, ease: "power2.out", onUpdate: function () { var el = document.querySelector(sel); if (!el) return; el.textContent = (fmt === "$" ? "$" : "") + Math.round(o.v).toLocaleString("en-US"); } }, Q(at)); }
+          function punch(w) { tl.to("#full-video", { scale: 1.07, duration: 0.15, ease: "power2.out" }, Q(w)); tl.to("#full-video", { scale: 1.0, duration: 0.35, ease: "power2.inOut" }, Q(w + 0.18)); }
+          function toFullhim() {} function toSplit() {} function toTakeover(t) { tl.to("#full-video", { opacity: 0.18, duration: 0.5 }, Q(t)); }
+          tl.fromTo("#progress", { scaleX: 0 }, { scaleX: 1, duration: DUR - 0.13, ease: "none" }, 0.05);
+          tl.fromTo("#claim", { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 0.08);
+
+{{TIMELINE}}
+
+{{CAPTION_TWEENS}}
+
+          window.__timelines = window.__timelines || {};
+          window.__timelines["{{COMPOSITION_ID}}"] = tl;
+        })();
+      </script>
+    </div>
+  </body>
+</html>
