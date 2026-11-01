@@ -165,9 +165,10 @@ function kindOf(fr) {
   return v ? "split" : "face";
 }
 function clipFor(fr) {
+  // only frames the Studio marked as a clip or photo moment take media, and only on the exact line
+  if (!/clip|photo|\(MY (CLIP|PHOTO)\)/i.test(fr.visual || "")) return null;
   const vo = norm(fr.vo || "");
   for (const c of clips) if (c.line && vo.includes(norm(c.line))) return c;
-  for (const c of clips) { const key = tok(c.line || "").filter((t) => t.length > 4)[0]; if (key && vo.includes(key)) return c; }
   return null;
 }
 // a frame's "visual" after the colon → chip phrases (max 4); " vs " → versus pair
@@ -360,8 +361,8 @@ for (const fr of frames) {
       // a card over the chest: photo/clip card or white logo card with big black words
       c.mode = "card";
       const txt = head || chips[0] || versus?.[1] || "";
-      if (clip) {
-        c.html = `<div class="rcard photo" id="${cid}-card">${mediaTag(clip, `${cid}-media`, st + 0.1, dur - 0.1)}<span class="tag">${tagFor(clip)}</span>${txt ? `<div class="cap-line">${esc(txt)}</div>` : ""}</div>`;
+      if (clip) {   // the on-screen line only (never the frame's description)
+        c.html = `<div class="rcard photo" id="${cid}-card">${mediaTag(clip, `${cid}-media`, st + 0.1, dur - 0.1)}<span class="tag">${tagFor(clip)}</span>${head ? `<div class="cap-line">${esc(head)}</div>` : ""}</div>`;
       } else {
         const bits = txt.split(/\s*[·|]\s*/).map(house).filter(Boolean);
         c.html = `<div class="rcard logo" id="${cid}-card"><div class="big">${esc(bits[0] || txt)}</div>${bits.slice(1, 3).map((b) => `<div class="sub">${esc(b)}</div>`).join("")}</div>`;
