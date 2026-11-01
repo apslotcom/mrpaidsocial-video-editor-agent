@@ -494,5 +494,12 @@ writeFileSync(path.join(project, "storyboard.json"), JSON.stringify({
   cards: cards.map((c) => ({ id: c.id, kind: c.kind, mode: c.mode, start: Q(c.start), end: Q(c.end), beat: c.beat })),
   sfx: sfxHits.filter((h) => h.name).map((h) => ({ name: h.name, at: Q(h.at), vol: h.vol })),
 }, null, 2));
+// placement manifest for tools/video-qa (hyperframes lane): cards, media and SFX in output time
+mkdirSync(path.join(project, "preview"), { recursive: true });
+writeFileSync(path.join(project, "preview", "manifest.json"), JSON.stringify([
+  ...cards.map((c) => ({ id: c.id, label: c.beat?.n || c.id, start: Q(c.start), dur: Q(Math.max(0.2, c.end - c.start)), track: 2, kind: c.kind === "media" || c.mediaTop ? "media" : "card" })),
+  ...sfxHits.filter((h) => h.name && durs[h.name]).map((h, i) => ({ id: `sfx-${i}`, label: h.name, start: Q(Math.max(0, h.at)), dur: durs[h.name], track: 11 + i, kind: "sfx" })),
+  ...(args.bed ? [{ id: "music-bed", label: "music bed", start: 0, dur: DUR, track: 99, kind: "music" }] : []),
+], null, 1));
 writeFileSync(path.join(project, "review-beats.json"), JSON.stringify(cards.filter((c) => c.beat).map((c) => ({ t: Q(c.start), n: c.beat.n, s: c.beat.s, tone: c.beat.tone || "" })), null, 2));
 console.log(`built ${S.label}: ${cards.length} cards, ${sfxEls.length} audio elements, DUR ${DUR.toFixed(2)}s (video ${videoDur.toFixed(2)}s${qOff ? ` + question ${qOff}s` : ""}) → ${path.join(project, "public", "index.html")}`);
