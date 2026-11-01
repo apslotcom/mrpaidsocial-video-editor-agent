@@ -232,6 +232,7 @@ for (const fr of frames) {
   const dur = Math.max(0.3, en - st);
   const c = { id, cid, kind, start: st, end: en, hide: [], tl: [], css: "", html: "", beat: null, mode: "split" };
   const clip = clipFor(fr);
+  if (clip && /\.(mp4|mov|webm)$/i.test(clip.file || "")) c.mediaTop = true;
   const { chips, versus, money } = chipsFrom(fr);
   const head = house(fr.onscreen || "");
   const headMoney = (head.match(/\$[\d][\d,]*/) || [])[0] || money;
@@ -458,10 +459,14 @@ const tplPath = path.join(HERE, style, "index-template.html");
 let html = readFileSync(tplPath, "utf8");
 const hostsHtml = cards.map((c) => {
   const extra = c.html + (c.badges ? `<div class="badges">${c.badges}</div>` : "");
-  return `      <!-- ${c.id}: ${c.kind} ${f4(c.start)}–${f4(c.end)} -->\n      <div class="card-host clip" data-card-id="${c.id}" data-start="${f4(c.start)}" data-duration="${f4(Math.max(0.2, c.end - c.start))}" data-track-index="2" style="${hostStyle(c.hostH || 1080)}">\n        <div class="card" data-card-id="${c.id}"><div class="root">${extra}</div></div>\n      </div>`;
+  const h = c.hostH || 1080;
+  // a card that plays a <video> cannot be a timed host (the linter rejects a timed video inside a timed
+  // wrapper), so it becomes an untimed media frame the timeline shows and hides like a host
+  if (c.mediaTop) return `      <!-- ${c.id}: ${c.kind} (media frame) ${f4(c.start)} to ${f4(c.end)} -->\n      <div class="media-frame" id="${c.id}" style="position:absolute;left:0;top:0;width:1080px;height:${h}px;overflow:hidden;pointer-events:none;visibility:hidden;opacity:0;">\n        <div class="card" data-card-id="${c.id}"><div class="root">${extra}</div></div>\n      </div>`;
+  return `      <!-- ${c.id}: ${c.kind} ${f4(c.start)} to ${f4(c.end)} -->\n      <div class="card-host clip" id="${c.id}" data-card-id="${c.id}" data-start="${f4(c.start)}" data-duration="${f4(Math.max(0.2, c.end - c.start))}" data-track-index="2" style="${hostStyle(h)}">\n        <div class="card" data-card-id="${c.id}"><div class="root">${extra}</div></div>\n      </div>`;
 }).join("\n");
 const hideList = cards.flatMap((c) => c.hide);
-const tlCode = cards.map((c) => `          /* ${c.id} */\n` + [`enter('.card-host[data-card-id="${c.id}"]', ${f4(c.start)}, ${c.mode === "fullhim" || c.mode === "card" ? "0.12" : "0.22"});`, ...c.tl, `exit('.card-host[data-card-id="${c.id}"]', ${f4(Math.max(c.start + 0.2, c.end - 0.18))}, 0.16);`].map((l) => "          " + l).join("\n")).join("\n") + "\n" + extraTl.map((l) => "          " + l).join("\n");
+const tlCode = cards.map((c) => `          /* ${c.id} */\n` + [`enter('#${c.id}', ${f4(c.start)}, ${c.mode === "fullhim" || c.mode === "card" ? "0.12" : "0.22"});`, ...c.tl, `exit('#${c.id}', ${f4(Math.max(c.start + 0.2, c.end - 0.18))}, 0.16);`].map((l) => "          " + l).join("\n")).join("\n") + "\n" + extraTl.map((l) => "          " + l).join("\n");
 
 const claim = house(card.claim || (frames[0]?.onscreen && /[A-Z]{3,}/.test(frames[0].onscreen) ? frames[0].onscreen : card.posts?.[0]?.hook || card.title || "")).replace(/[.]+$/, "");
 const question = house(card.question || frames[0]?.vo?.split(/[.?!]/)[0] || "").replace(/[.]+$/, "");
