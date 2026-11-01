@@ -580,3 +580,42 @@ five skill validations. Rechecked whitespace and public-repository hygiene befor
 committing. Media, credentials, local review storage and personal configuration
 remain ignored. No architecture or implementation changes were needed for this
 publication step.
+
+## 2026-11-01 — First run on a Windows machine: APSlot "475 out of 500" (branded-ad-edit)
+
+- **Setup:** Windows 11, Node 26, Python 3.12, ffmpeg 9.0.2 via winget. Two portability fixes were needed and
+  sent upstream as a PR: `npm` resolved through `shutil.which` (bare `npm` is `npm.cmd` on Windows), and
+  `-filter_complex_script` → `-/filter_complex` (removed in FFmpeg 8). README now says ffmpeg >= 7.0.
+- **Transcription:** HyperFrames could not install whisper.cpp here; `hyperframes models install parakeet`
+  worked and gave clean word timings on-device (one dropped word, fixed by hand).
+- **Edit:** a 27.5 s AI-actor talking head (two lip-sync pieces joined at 12.81 s) → 29.4 s branded Short:
+  8 cards, 2 full-bleed beats, real site page in a browser frame, house captions (white Barlow, upper case,
+  1–2 words, no trailing punctuation). `check` passed with 0 errors after moving a label out of the kicker
+  row, allowing the intentional stamp overlap, and giving the end card 2 s.
+- **Sound:** none (no ElevenLabs key). The QA engine correctly flags the silent end card as dead air; the
+  raw take was −20 LUFS and was mastered to −14.3 LUFS with a limiter, video copied.
+- **Delivery:** local review canvas (no here.now credentials) with the studio's own cut as a comparison
+  version. Served with `scripts/serve-review.py`.
+- **Lesson:** when the source is already 9:16, the "band crop" is a 1080×840 window on the face and the
+  full-bleed crop is the source itself; the composition grammar still works unchanged.
+
+## 2026-11-01 — Studio integration spike: the pack as the AI Shorts edit engine (Higgsfield sandbox)
+
+- **Where it runs:** the pack cloned into the Higgsfield cloud sandbox (1 CPU, 8 GB, ffmpeg 5.1, Playwright
+  Chromium baked into the image). HyperFrames check/snapshot/render all work with
+  `HYPERFRAMES_BROWSER_PATH` pointed at that Chromium; a 29 s Short renders in about 3.5 min.
+- **House templates:** `assets/apslot/` — four style templates generated from a Studio card's frames and a
+  word transcript (`build.mjs`), crops and assets (`prep.mjs`), a key-free SFX kit (`sfx/synth-kit.py`).
+  Two styles proven on real cards (Kallaway Breakdown, Hormozi Receipts); the other two linted only.
+- **Sound without a key:** the studio's voice goes through Higgsfield's ElevenLabs model, so no ElevenLabs
+  key exists anywhere; the sound stage uses a synthesised kit and the studio's own music beds. The 475
+  project got its v2 with kit and lo-fi bed 19 dB under the voice.
+- **Proof:** a real Receipts card rebuilt end to end from the raw MiniMax H3 pieces: EDL pause tighten with
+  the transcript remapped (never re-transcribed), compose, lint, render, QA, master (−14.7 LUFS / −1.4 dBTP),
+  upload, attached to the Studio card as a comparison version. `INTEGRATION.md` holds the go/no-go and
+  the routine prompt diff; nothing in the routines was changed.
+- **Lessons:** (1) a timed `<video>` may not sit inside a timed host, so clip cards are untimed media frames
+  the timeline shows and hides; (2) `video-qa`'s hyperframes lane needs `--duration` when the composition
+  runs past the EDL's master end, or manifest validation fails; (3) a static end card trips the frozen-frame
+  detector, so every house end card carries a slow push; (4) ffmpeg's `volume` on a mono file re-encoded to
+  stereo mp3 lands about 3 dB under the target peak; measure the files, not the gain.

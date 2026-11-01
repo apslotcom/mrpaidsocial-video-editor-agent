@@ -179,6 +179,16 @@ A user's videos usually live in their own working repo, not here. The pattern:
    reviewer's name, machine paths and review URLs go into MASTER_CONTEXT.md or the working
    repo's own logs. `scripts/scrub-check.sh` enforces it at commit and push time.
 
+## House templates for a studio (`assets/apslot/`)
+
+A worked example of driving the pack from a content studio's database instead of a chat brief: four
+style templates (`<style>/index-template.html`), a generator that turns a studio card's frames plus a
+word transcript into a composition (`build.mjs`), a media/crops/fonts layout step (`prep.mjs`), and a
+key-free SFX kit (`sfx/synth-kit.py`) for environments with no ElevenLabs key. `INTEGRATION.md` at the
+repo root documents the cloud-sandbox run, costs, render times and the routine changes. The templates
+carry one brand on purpose; a second studio copies the folder and changes tokens, caption rules and
+card grammar.
+
 ## External dependencies (documented, not vendored)
 
 - **HyperFrames** — composition + render engine: `npx hyperframes`, plus
