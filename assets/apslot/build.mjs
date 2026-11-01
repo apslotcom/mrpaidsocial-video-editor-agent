@@ -253,7 +253,8 @@ for (const fr of frames) {
       const [l1, l2] = head.split(/\s*[·|]\s*/);
       c.html = `<div class="cta"><div class="wm" id="${cid}-wm"><b>AP</b>SLOT</div><div class="line1" id="${cid}-l1">${esc(l1 || "Find it on apslot.com")}</div><div class="line2" id="${cid}-l2">${esc(l2 || "APSLOT.COM")}</div><div class="fine" id="${cid}-fine">Education only · 21+</div></div>`;
       c.hide.push(`#${cid}-wm`, `#${cid}-l1`, `#${cid}-l2`, `#${cid}-fine`);
-      c.tl.push(`toTakeover(${f4(st - 0.1)});`, `rise("#${cid}-wm", ${f4(st + 0.1)}, 0.4);`, `rise("#${cid}-l1", ${f4(st + 0.3)}, 0.4);`, `rise("#${cid}-l2", ${f4(st + 0.45)}, 0.4);`, `rise("#${cid}-fine", ${f4(st + 0.6)}, 0.4);`);
+      c.tl.push(`toTakeover(${f4(st - 0.1)});`, `rise("#${cid}-wm", ${f4(st + 0.1)}, 0.4);`, `rise("#${cid}-l1", ${f4(st + 0.3)}, 0.4);`, `rise("#${cid}-l2", ${f4(st + 0.45)}, 0.4);`, `rise("#${cid}-fine", ${f4(st + 0.6)}, 0.4);`,
+        `tl.fromTo("#${id} .cta", { scale: 1 }, { scale: 1.035, duration: ${f4(Math.max(0.5, DUR - st - 0.4))}, ease: "none", immediateRender: false }, ${f4(st + 0.3)});`);   // a slow push so the close never reads as a frozen frame
       sfxHits.push({ name: S.sfx.end, at: st, vol: S.volumes[S.sfx.end] });
       c.beat = { n: "End card", s: head, tone: "green" };
     } else {
@@ -309,7 +310,8 @@ for (const fr of frames) {
       const [l1, l2] = head.split(/\s*[·|]\s*/);
       c.html = `<div class="cta blue"><div class="kick" id="${cid}-k">APSLOT.COM</div><div class="line1" id="${cid}-l1">${esc(l1 || "Get it on apslot.com")}</div><div class="line2" id="${cid}-l2">${esc(l2 || "APSLOT.COM")}</div><div class="fine" id="${cid}-fine">Education only · 21+</div></div>`;
       c.hide.push(`#${cid}-k`, `#${cid}-l1`, `#${cid}-l2`, `#${cid}-fine`);
-      c.tl.push(`toTakeover(${f4(st - 0.1)});`, `rise("#${cid}-k", ${f4(st + 0.1)}, 0.4);`, `rise("#${cid}-l1", ${f4(st + 0.25)}, 0.4);`, `rise("#${cid}-l2", ${f4(st + 0.4)}, 0.4);`, `rise("#${cid}-fine", ${f4(st + 0.55)}, 0.4);`);
+      c.tl.push(`toTakeover(${f4(st - 0.1)});`, `rise("#${cid}-k", ${f4(st + 0.1)}, 0.4);`, `rise("#${cid}-l1", ${f4(st + 0.25)}, 0.4);`, `rise("#${cid}-l2", ${f4(st + 0.4)}, 0.4);`, `rise("#${cid}-fine", ${f4(st + 0.55)}, 0.4);`,
+        `tl.fromTo("#${id} .cta", { scale: 1 }, { scale: 1.035, duration: ${f4(Math.max(0.5, DUR - st - 0.4))}, ease: "none", immediateRender: false }, ${f4(st + 0.3)});`);
       sfxHits.push({ name: S.sfx.end, at: st, vol: S.volumes[S.sfx.end] });
       c.beat = { n: "End card", s: head, tone: "green" };
     } else {
@@ -352,7 +354,8 @@ for (const fr of frames) {
       const parts = head.split(/\s*[·|]\s*/).map(house).filter(Boolean);
       c.html = `<div class="cta"><div class="logo" id="${cid}-logo"><div class="big">${esc(parts[0] || "APSLOT.COM")}</div>${parts.slice(1, 3).map((p, i) => `<div class="sub">${esc(p)}</div>`).join("")}</div><div class="fine" id="${cid}-fine">Education only · 21+</div></div>`;
       c.hide.push(`#${cid}-logo`, `#${cid}-fine`);
-      c.tl.push(`tl.to("#full-video", { opacity: 0.18, duration: 0.5 }, ${f4(st - 0.2)});`, `pop("#${cid}-logo", ${f4(st + 0.05)}, 0.45, 0.9);`, `rise("#${cid}-fine", ${f4(st + 0.5)}, 0.4);`);
+      c.tl.push(`tl.to("#full-video", { opacity: 0.18, duration: 0.5 }, ${f4(st - 0.2)});`, `pop("#${cid}-logo", ${f4(st + 0.05)}, 0.45, 0.9);`, `rise("#${cid}-fine", ${f4(st + 0.5)}, 0.4);`,
+        `tl.to("#${cid}-logo", { scale: 1.04, duration: ${f4(Math.max(0.5, DUR - st - 0.55))}, ease: "none" }, ${f4(st + 0.5)});`);   // slow push on the close
       sfxHits.push({ name: S.sfx.end, at: st, vol: S.volumes[S.sfx.end] });
       c.beat = { n: "End card", s: head, tone: "green" };
     } else if (kind === "face") {
@@ -381,7 +384,8 @@ for (const fr of frames) {
       const thesis = house(card.thesis || head || (frames.filter((f) => f.vo).at(-1)?.vo || "")).replace(/[.]+$/, "");
       c.html = `<div class="thesis"><div class="mark" id="${cid}-mark"><b>AP</b>SLOT</div><div class="line" id="${cid}-line">${esc(thesis)}</div><div class="fine" id="${cid}-fine">Education only · 21+</div></div>`;
       c.hide.push(`#${cid}-mark`, `#${cid}-line`, `#${cid}-fine`);
-      c.tl.push(`tl.to("#full-video", { opacity: 0, duration: 0.6 }, ${f4(st - 0.3)});`, `rise("#${cid}-line", ${f4(st + 0.15)}, 0.6);`, `rise("#${cid}-mark", ${f4(st + 0.9)}, 0.5);`, `rise("#${cid}-fine", ${f4(st + 1.1)}, 0.5);`);
+      c.tl.push(`tl.to("#full-video", { opacity: 0, duration: 0.6 }, ${f4(st - 0.3)});`, `rise("#${cid}-line", ${f4(st + 0.15)}, 0.6);`, `rise("#${cid}-mark", ${f4(st + 0.9)}, 0.5);`, `rise("#${cid}-fine", ${f4(st + 1.1)}, 0.5);`,
+        `tl.to("#${cid}-line", { scale: 1.03, duration: ${f4(Math.max(0.5, DUR - st - 0.8))}, ease: "none" }, ${f4(st + 0.75)});`);
       sfxHits.push({ name: S.sfx.beat, at: st + 0.15, vol: S.volumes[S.sfx.beat] }, { name: S.sfx.end, at: Math.max(0, st - 1.6), vol: S.volumes[S.sfx.end] });
       c.beat = { n: "Thesis card", s: thesis, tone: "mute" };
     } else {
