@@ -185,10 +185,18 @@ kallaway-news → synthwave, hormozi → darksynth, hormozi-cinema → cinematic
 | Render wall time, 30 s Short, 1 CPU | about 1 min (PIL frames) | about 3.5 min, plus about 1 min for transcription, crops and QA |
 | Render wall time, 60 s Short | about 2 min | about 7 to 8 min (background job; under the 15 min bound) |
 
-## 6. The routine prompt change (for James to approve; nothing edited)
+## 6. The routine prompt change (applied 2026-11-03)
 
-In `trig_01AU2Xo8qxF4dTg3fLPgSKdA` → STEP 2 "BUILD EACH ONE", the paragraph that starts
-"Render in the Higgsfield sandbox (free) with ~/studio/ai/make_s_short.py" changes to:
+James approved this on 2026-11-03 and the build routine `trig_01AU2Xo8qxF4dTg3fLPgSKdA` was updated at 14:19 UTC
+(9:19 AM ET), before its 1:17 PM ET run, so the first unattended build on the pack is the Nov 3 1:17 PM ET run.
+The live STEP 2 paragraph is the `+` line below, word for word, followed by the house-rule sentences the old
+paragraph already carried (captions, "Education only · 21+", no "Made with AI", accepted length, upload).
+One caution for anyone editing the routine again: the update API replaces `job_config` wholesale, so send the
+full config (environment, events, session context with the system prompt, tags); keep the `get` output as the
+backup first.
+
+In `trig_01AU2Xo8qxF4dTg3fLPgSKdA` → STEP 2 "BUILD EACH ONE", the paragraph that started
+"Render in the Higgsfield sandbox (free) with ~/studio/ai/make_s_short.py" became:
 
 ```diff
 -- Render in the Higgsfield sandbox (free) with ~/studio/ai/make_s_short.py, the four-style engine (James, Oct 31: "4 completely different editing styles"): spec.style = creators/<style>.engineStyle (kallaway -> breakdown, kallaway-news -> newsroom, hormozi -> receipts, hormozi-cinema -> cinematic; an idea with no style uses kallaway). Build the spec from creators/<style>.edit (layout, graphic beat every 1 to 2 s for breakdown, top-panel proof for newsroom, claim banner and photo cards for receipts, question card, hero words and thesis card for cinematic), the music bed it names in ~/studio/music, and the engine docstring for spec keys. Restore the engine, segmask.py, the music beds, fonts and selfie model, vocheck.py and bilabial.py from aishorts/settings styles.engine and styles.scripts if missing. make_k_short.py and make_h_short.py only re-render cards they already made.

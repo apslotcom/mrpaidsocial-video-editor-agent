@@ -619,3 +619,13 @@ publication step.
   runs past the EDL's master end, or manifest validation fails; (3) a static end card trips the frozen-frame
   detector, so every house end card carries a slow push; (4) ffmpeg's `volume` on a mono file re-encoded to
   stereo mp3 lands about 3 dB under the target peak; measure the files, not the gain.
+
+## 2026-11-03 — Studio integration approved: the build routine now renders with the pack
+
+- James approved the INTEGRATION.md §6 prompt change. The build routine (1:17 PM / 9:17 PM ET) now follows
+  INTEGRATION.md §5 in the Higgsfield sandbox, with the old `make_s_short.py` engine as the fallback after two failed
+  check/render attempts. First run on the new prompt: Nov 3, 1:17 PM ET. No other routine changed.
+- Lesson: a routine update through the API replaces the whole job config; a partial body silently drops the system
+  prompt. Fetch, edit the one paragraph, send everything back.
+- Open: Newsroom and Cinematic styles have not yet been rendered on a real card; the first routine run that picks one
+  of those is the test.
