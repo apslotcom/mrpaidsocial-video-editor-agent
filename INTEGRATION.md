@@ -165,9 +165,14 @@ node assets/apslot/build.mjs --style $STYLE --card $P/card.json --words $P/trans
 npx --prefix tools/hyperframes hyperframes check $P/public
 npx --prefix tools/hyperframes hyperframes snapshot $P/public --at <card starts> --no-end   # look via image_paths
 npx --prefix tools/hyperframes hyperframes render $P/public -o $P/_render-raw.mp4 --fps 30
-# 6. QA + master (video copied, audio limited to −14 LUFS / ≤ −1 dBTP), then upload as today
+# 6. QA + master (video copied, audio limited to −14 LUFS / ≤ −1 dBTP), then upload as today.
+#    --duration is the composition length from storyboard.json: without it the lane takes the EDL's last window as
+#    the expected end, and the end card, its SFX and the music bed (which run to the composition end) fail manifest
+#    validation with "Event extends beyond expected duration".
+DUR=$(node -p "JSON.parse(require('fs').readFileSync('$P/storyboard.json','utf8')).duration")
 npm --prefix tools/video-qa run qa:video -- --lane hyperframes --video $P/_render-raw.mp4 --edl $P/edl-windows.json \
-    --words $P/transcript-words.tight.json --words-are-output --placement $P/preview/manifest.json --skip-semantic
+    --words $P/transcript-words.tight.json --words-are-output --placement $P/preview/manifest.json \
+    --duration $DUR --skip-semantic
 ffmpeg -y -i $P/_render-raw.mp4 -c:v copy -af "loudnorm=I=-14:TP=-1.5:LRA=11" -c:a aac -b:a 192k $P/output-v1.mp4
 ```
 

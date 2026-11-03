@@ -39,6 +39,11 @@ node assets/apslot/prep.mjs --source $P/source.mp4 --project $P --style hormozi 
 node assets/apslot/build.mjs --style hormozi --card $P/card.json --words $P/transcript-words.json \
      --project $P --clips $P/clips.json --sfx $P/public/sfx --bed-src <bed.wav>
 npx hyperframes check $P/public && npx hyperframes render $P/public -o $P/output-v1.mp4 --fps 30
+# QA (tools/video-qa, hyperframes lane): pass the composition length, or the end card, its SFX and the bed
+# fail manifest validation ("Event extends beyond expected duration") whenever they outrun the EDL's last window
+DUR=$(node -p "JSON.parse(require('fs').readFileSync('$P/storyboard.json','utf8')).duration")
+npm --prefix tools/video-qa run qa:video -- --lane hyperframes --video $P/output-v1.mp4 --edl $P/edl-windows.json \
+    --words $P/transcript-words.json --words-are-output --placement $P/preview/manifest.json --duration $DUR --skip-semantic
 ```
 
 `clips.src.json` is `[{line, src, kind, what}]` with local paths (prep.mjs copies them into

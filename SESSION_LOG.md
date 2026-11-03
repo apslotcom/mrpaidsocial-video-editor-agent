@@ -629,3 +629,17 @@ publication step.
   prompt. Fetch, edit the one paragraph, send everything back.
 - Open: Newsroom and Cinematic styles have not yet been rendered on a real card; the first routine run that picks one
   of those is the test.
+
+## 2026-11-03 — Pack fixes from the first routine build (back-to-back face beats, QA duration)
+
+- **Blank second face beat:** `assets/apslot/build.mjs` emitted `toFullhim`/`toSplit` per face frame, so two adjacent
+  full-face frames hid `#video-full` 0.14 s after the second one had shown it (and faded the band in and out at the
+  same instant): the second beat went black. Runs of adjacent face frames are now one hold with one transition in and
+  one out (breakdown and newsroom; the two Hormozi styles never used those helpers). Verified with a 9-frame test card
+  (three face runs) through `hyperframes check` and `snapshot` at the joins in Kallaway and Newsroom.
+- **QA manifest validation:** the hyperframes lane takes the EDL's last window as the expected end unless `--duration`
+  is passed, so the end card, its SFX and the bed failed validation. INTEGRATION.md §5 and `assets/apslot/README.md`
+  now pass `--duration` from `storyboard.json`; verified on the 475 house build (identity EDL, fresh local render):
+  validation passes and the run completes through the technical layer.
+- Open (pre-existing, seen while testing): the Newsroom template fails lint on a synthetic card (stat row text clipped,
+  number badge occluded by the band video, end-card contrast); untouched here, to be checked on the first real Newsroom card.

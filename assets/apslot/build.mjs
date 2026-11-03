@@ -242,8 +242,7 @@ for (const fr of frames) {
   // ---------- Kallaway Breakdown ----------
   if (S.engine === "breakdown") {
     if (kind === "face" || kind === "facecard") {
-      c.mode = "fullhim";
-      c.tl.push(`toFullhim(${f4(st)}, ${f4(dur)});`, `toSplit(${f4(en)});`);
+      c.mode = "fullhim"; c.fullHold = true;   // the in/out transitions are emitted per run of adjacent face frames below
       if (head) { c.html = `<div class="chip ${tone || "gold"} fchip" id="${cid}-chip"><span class="dot"></span>${esc(head)}</div>`; c.hide.push(`#${cid}-chip`); c.tl.push(`pop("#${cid}-chip", ${f4(st + 0.08)}, 0.35, 0.8);`); }
       c.hostH = 1920;
       if (S.punchEvery) c.tl.push(`punch(${f4(st + 0.04)});`);
@@ -301,8 +300,7 @@ for (const fr of frames) {
   // ---------- Kallaway Newsroom ----------
   if (S.engine === "newsroom") {
     if (kind === "face" || kind === "facecard") {
-      c.mode = "fullhim"; c.hostH = 1920;
-      c.tl.push(`toFullhim(${f4(st)}, ${f4(dur)});`, `toSplit(${f4(en)});`);
+      c.mode = "fullhim"; c.hostH = 1920; c.fullHold = true;
       if (S.punchEvery) c.tl.push(`punch(${f4(st + 0.04)});`);
       c.beat = { n: `Face · punch-in`, s: house(fr.vo || "").slice(0, 90), tone: "mute" };
     } else if (kind === "end") {
@@ -408,6 +406,19 @@ for (const fr of frames) {
     }
   }
   cards.push(c);
+}
+
+// full-face holds (breakdown, newsroom): back-to-back face frames are ONE hold with one transition in and one
+// out. Emitting toFullhim/toSplit per frame made the join blank: toSplit(end of A) hid #video-full 0.14 s after
+// toFullhim(start of B) had shown it, and the band faded back in and out at the same instant.
+for (let i = 0; i < cards.length; i++) {
+  if (!cards[i].fullHold) continue;
+  let j = i;
+  while (j + 1 < cards.length && cards[j + 1].fullHold && cards[j + 1].start - cards[j].end < 0.1) j++;
+  const first = cards[i], last = cards[j];
+  first.tl.unshift(`toFullhim(${f4(first.start)}, ${f4(Math.max(0.3, last.end - first.start))});`);
+  last.tl.push(`toSplit(${f4(last.end)});`);
+  i = j;
 }
 
 // opener hit
